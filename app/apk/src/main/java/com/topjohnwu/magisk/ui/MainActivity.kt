@@ -16,14 +16,14 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import com.topjohnwu.magisk.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.arch.UIActivity
 import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Const
@@ -40,6 +40,7 @@ import com.topjohnwu.magisk.ui.flash.FlashUtils
 import com.topjohnwu.magisk.ui.navigation.Navigator
 import com.topjohnwu.magisk.ui.navigation.Route
 import com.topjohnwu.magisk.ui.theme.Theme
+import com.topjohnwu.magisk.ui.theme.enableMaterial3ExpressiveFlags
 import com.topjohnwu.magisk.view.Shortcuts
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -69,6 +70,7 @@ class MainActivity : UIActivity<Any>(), SplashScreenHost {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableMaterial3ExpressiveFlags()
         extension.onCreate(savedInstanceState)
         if (isRunningAsStub) {
             val delegate = delegate
@@ -162,7 +164,7 @@ class MainActivity : UIActivity<Any>(), SplashScreenHost {
 
     @Composable
     private fun HandleFlashIntent(navigator: Navigator) {
-        val intentVersion by intentState.collectAsState()
+        val intentVersion by intentState.collectAsStateWithLifecycle()
         LaunchedEffect(intentVersion) {
             val currentIntent = intent ?: return@LaunchedEffect
             if (currentIntent.action == FlashUtils.INTENT_FLASH) {
@@ -248,9 +250,9 @@ class MainActivity : UIActivity<Any>(), SplashScreenHost {
 
 @Composable
 private fun MainActivityDialogs(activity: MainActivity) {
-    val showInvalid by activity.showInvalidState.collectAsState()
-    val unsupportedMessages by activity.showUnsupported.collectAsState()
-    val showShortcut by activity.showShortcutPrompt.collectAsState()
+    val showInvalid by activity.showInvalidState.collectAsStateWithLifecycle()
+    val unsupportedMessages by activity.showUnsupported.collectAsStateWithLifecycle()
+    val showShortcut by activity.showShortcutPrompt.collectAsStateWithLifecycle()
 
     val invalidDialog = com.topjohnwu.magisk.ui.component.rememberConfirmDialog(
         onConfirm = {

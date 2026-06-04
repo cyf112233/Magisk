@@ -51,7 +51,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.topjohnwu.magisk.arch.UIActivity
@@ -117,7 +117,7 @@ fun SuperuserScreen(
     onOpenLogs: () -> Unit = {},
     viewModel: SuperuserComposeViewModel = viewModel(factory = SuperuserComposeViewModel.Factory)
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val activity = LocalContext.current as? UIActivity<*>
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -281,7 +281,11 @@ private fun PolicyList(
                 }
             }
         } else {
-            items(items, key = { "${it.uid}:${it.packageName}" }) { item ->
+            items(
+                items = items,
+                key = { "${it.uid}:${it.packageName}" },
+                contentType = { "policy_item" }
+            ) { item ->
                 StylishMagiskPolicyCard(
                     item = item,
                     onToggleExpanded = { onToggleExpanded(item.uid, item.packageName) },

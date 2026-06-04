@@ -33,6 +33,7 @@ import com.topjohnwu.magisk.core.su.SuCallbackHandler.REQUEST
 import com.topjohnwu.magisk.core.wrap
 import com.topjohnwu.magisk.ui.theme.MagiskExpressiveTheme
 import com.topjohnwu.magisk.ui.theme.Theme
+import com.topjohnwu.magisk.ui.theme.enableMaterial3ExpressiveFlags
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,6 +59,7 @@ open class SuRequestActivity : AppCompatActivity(), UntrackedActivity {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableMaterial3ExpressiveFlags()
         extension.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED

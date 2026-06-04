@@ -142,7 +142,8 @@ fun TerminalLogContainer(
                     ) {
                         itemsIndexed(
                             items = lines,
-                            key = { index, _ -> index }
+                            key = { index, _ -> index },
+                            contentType = { _, _ -> "terminal_log_line" }
                         ) { _, line ->
                             StyledLogLine(
                                 line = line,

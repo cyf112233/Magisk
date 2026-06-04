@@ -96,7 +96,11 @@ fun ThemeScreen(
                 )
             }
 
-            items(themes, key = { it.ordinal }) { theme ->
+            items(
+                items = themes,
+                key = { it.ordinal },
+                contentType = { "theme_card" }
+            ) { theme ->
                 ThemeOrganicCard(
                     theme = theme,
                     isSelected = theme == currentTheme,

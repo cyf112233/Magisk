@@ -52,7 +52,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -77,6 +76,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.topjohnwu.magisk.core.AppContext
@@ -119,7 +119,7 @@ fun ModuleScreen(
     val context = LocalContext.current
     val activity = context as? MainActivity
     val scope = rememberCoroutineScope()
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var appliedQuery by rememberSaveable { mutableStateOf("") }
     var showSearch by rememberSaveable { mutableStateOf(false) }
@@ -297,7 +297,11 @@ fun ModuleScreen(
                         }
                     }
                 } else {
-                    itemsIndexed(filteredModules, key = { _, m -> m.id }) { _, module ->
+                    itemsIndexed(
+                        items = filteredModules,
+                        key = { _, module -> module.id },
+                        contentType = { _, _ -> "module_item" }
+                    ) { _, module ->
                         ModuleCard(
                             module = module,
                             onToggleExpanded = { viewModel.toggleExpanded(module.id) },

@@ -51,7 +51,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.topjohnwu.magisk.core.AppContext
@@ -104,7 +104,7 @@ fun DenyListScreen(
     onBack: () -> Unit,
     viewModel: DenyListComposeViewModel = viewModel(factory = DenyListComposeViewModel.Factory)
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     RefreshOnResume { viewModel.refresh() }
@@ -160,7 +160,11 @@ fun DenyListScreen(
                 }
 
                 else -> {
-                    items(state.items, key = { it.packageName }) { item ->
+                    items(
+                        items = state.items,
+                        key = { it.packageName },
+                        contentType = { "deny_list_item" }
+                    ) { item ->
                         DenyListCard(
                             item = item,
                             onToggleExpanded = { viewModel.toggleExpanded(item.packageName) },

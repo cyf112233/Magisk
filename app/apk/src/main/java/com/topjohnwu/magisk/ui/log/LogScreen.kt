@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.topjohnwu.magisk.arch.UIActivity
@@ -45,7 +46,7 @@ import com.topjohnwu.magisk.core.R as CoreR
 fun LogsScreen(
     viewModel: MagiskLogViewModel = viewModel(factory = MagiskLogViewModel.Factory)
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalContext.current as? UIActivity<*>
     val listState = rememberLazyListState()
@@ -137,7 +138,11 @@ fun LogsScreen(
                     }
                 }
             } else {
-                items(items = filteredLogs, key = { it.id }) { item ->
+                items(
+                    items = filteredLogs,
+                    key = { it.id },
+                    contentType = { "log_item" }
+                ) { item ->
                     LogEventCard(item = item)
                 }
             }

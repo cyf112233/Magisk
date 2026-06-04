@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -81,7 +82,7 @@ fun HomeScreen(
     onOpenUninstall: () -> Unit = {},
     viewModel: HomeComposeViewModel = viewModel(factory = HomeComposeViewModel.Factory)
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as MainActivity
     val scope = rememberCoroutineScope()

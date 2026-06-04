@@ -1,20 +1,20 @@
 [versions]
-kotlin = "2.3.20"
-android = "9.2.0"
-android-tools = "32.2.0"
+kotlin = "2.4.0"
+android = "9.2.1"
+android-tools = "32.2.1"
 ksp = "2.3.6"
-navigation = "2.9.7"
+navigation = "2.9.8"
 libsu = "6.0.0"
 okhttp = "5.3.2"
 retrofit = "3.0.0"
 room = "2.8.4"
 coil-compose = "2.7.0"
 lifecycle = "2.10.0"
-compose-ui = "1.10.6"
-compose-m3 = "1.4.0"
-navigation3 = "1.1.0"
-navigationevent = "1.0.2"
-wire = "6.2.0"
+compose-ui = "1.11.2"
+compose-m3 = "1.5.0-alpha21"
+navigation3 = "1.1.2"
+navigationevent = "1.1.1"
+wire = "6.4.0"
 
 [libraries]
 bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version = "1.84" }
@@ -32,14 +32,14 @@ xz = { module = "org.tukaani:xz", version = "1.12" }
 # AndroidX
 activity = { module = "androidx.activity:activity", version = "1.13.0" }
 appcompat = { module = "androidx.appcompat:appcompat", version = "1.7.1" }
-core-ktx = { module = "androidx.core:core-ktx", version = "1.18.0" }
+core-ktx = { module = "androidx.core:core-ktx", version = "1.19.0" }
 core-splashscreen = { module = "androidx.core:core-splashscreen", version = "1.2.0" }
 profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version = "1.4.1" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 collection-ktx = { module = "androidx.collection:collection-ktx", version = "1.6.0" }
-material = { module = "com.google.android.material:material", version = "1.13.0" }
+material = { module = "com.google.android.material:material", version = "1.14.0" }
 jdk-libs = { module = "com.android.tools:desugar_jdk_libs_nio", version = "2.1.5" }
 test-runner = { module = "androidx.test:runner", version = "1.7.0" }
 test-rules = { module = "androidx.test:rules", version = "1.7.0" }
@@ -54,7 +54,6 @@ libsu-nio = { module = "com.github.topjohnwu.libsu:nio", version.ref = "libsu" }
 
 # Compose
 activity-compose = { module = "androidx.activity:activity-compose", version = "1.13.0" }
-accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version = "0.37.3" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose-ui" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-ui" }
@@ -83,6 +82,6 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 lsparanoid = { id = "org.lsposed.lsparanoid", version = "0.6.0" }
-moshix = { id = "dev.zacsweers.moshix", version = "0.35.0" }
+moshix = { id = "dev.zacsweers.moshix", version = "0.36.0" }
 navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }

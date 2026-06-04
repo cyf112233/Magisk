@@ -2,7 +2,7 @@ package com.topjohnwu.magisk.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
@@ -34,7 +34,7 @@ fun MagiskExpressiveTheme(
     colorScheme: ColorScheme,
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
         shapes = MagiskExpressiveShapes,
         typography = MagiskExpressiveTypography,

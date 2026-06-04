@@ -39,7 +39,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -62,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.topjohnwu.magisk.arch.UIActivity
@@ -96,7 +96,7 @@ import com.topjohnwu.magisk.core.R as CoreR
 fun SuperuserLogsScreen(
     viewModel: SuperuserLogsComposeViewModel = viewModel(factory = SuperuserLogsComposeViewModel.Factory)
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val activity = LocalContext.current as? UIActivity<*>
 
@@ -158,7 +158,11 @@ fun SuperuserLogsScreen(
                             contentPadding = PaddingValues(bottom = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            itemsIndexed(state.items, key = { _, item -> item.id }) { index, item ->
+                            itemsIndexed(
+                                items = state.items,
+                                key = { _, item -> item.id },
+                                contentType = { _, _ -> "su_log_item" }
+                            ) { index, item ->
                                 TimelineLogItem(index, state.items.size, item)
                             }
                         }

@@ -40,7 +40,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +54,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.topjohnwu.magisk.arch.VMFactory
 import com.topjohnwu.magisk.core.Config
@@ -74,7 +74,7 @@ fun InstallScreen(
     onStartFlash: (action: String, uri: Uri?) -> Unit
 ) {
     val viewModel: InstallViewModel = viewModel(factory = VMFactory)
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val patchPicker = rememberLauncherForActivityResult(GetContent()) { uri ->
         uri?.let { viewModel.onPatchFileSelected(it) }
