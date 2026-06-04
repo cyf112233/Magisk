@@ -176,14 +176,14 @@ object MagiskMotion {
     fun expandedControlEnter(): EnterTransition = fadeIn(
         animationSpec = mediumTween(delayMillis = MotionTokens.DelaySm)
     ) + scaleIn(
-        initialScale = 0.85f,
+        initialScale = 0.92f,
         animationSpec = noBounceSpring(stiffness = MotionTokens.StiffnessMediumLow)
     )
 
     fun expandedControlExit(): ExitTransition = fadeOut(
         animationSpec = quickTween()
     ) + scaleOut(
-        targetScale = 0.85f,
+        targetScale = 0.92f,
         animationSpec = quickTween()
     )
 
@@ -212,6 +212,9 @@ object MagiskMotion {
     fun expandablePanelEnter(): EnterTransition = expandVertically(
         expandFrom = Alignment.Top,
         animationSpec = noBounceSpring(stiffness = MotionTokens.StiffnessLow)
+    ) + slideInVertically(
+        initialOffsetY = { -it / 12 },
+        animationSpec = standardTween(durationMillis = MotionTokens.DurationExpand)
     ) + fadeIn(
         animationSpec = mediumTween(delayMillis = MotionTokens.DelayXs)
     )
@@ -222,6 +225,9 @@ object MagiskMotion {
             durationMillis = MotionTokens.DurationCollapse,
             easing = FastOutLinearInEasing
         )
+    ) + slideOutVertically(
+        targetOffsetY = { -it / 14 },
+        animationSpec = quickTween()
     ) + fadeOut(
         animationSpec = quickTween()
     )

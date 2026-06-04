@@ -58,10 +58,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.ktx.toast
+import androidx.compose.ui.graphics.Brush
 import com.topjohnwu.magisk.ui.component.MagiskCard
 import com.topjohnwu.magisk.ui.component.MagiskDropdownMenu
 import com.topjohnwu.magisk.ui.component.MagiskDropdownMenuItem
 import com.topjohnwu.magisk.ui.component.MagiskUiDefaults
+import com.topjohnwu.magisk.ui.component.PremiumIconContainer
 import com.topjohnwu.magisk.ui.theme.magiskComposeColorScheme
 import com.topjohnwu.magisk.core.R as CoreR
 
@@ -147,10 +149,15 @@ fun SuRequestScreen(
                 ) {
                     // Header Row with shield icon
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                        PremiumIconContainer(
+                            size = MagiskUiDefaults.SmallIconContainerSize,
                             shape = MagiskUiDefaults.SmallShape,
-                            modifier = Modifier.size(MagiskUiDefaults.SmallIconContainerSize)
+                            backgroundBrush = Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                )
+                            )
                         ) {
                             Icon(
                                 Icons.Rounded.Security, null,
@@ -170,19 +177,28 @@ fun SuRequestScreen(
 
                     // Main App Info Card
                     Surface(
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        color = Color.Transparent,
                         shape = RoundedCornerShape(20.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.95f),
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Surface(
-                                modifier = Modifier.size(64.dp),
+                            PremiumIconContainer(
+                                size = 64.dp,
                                 shape = RoundedCornerShape(16.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                                tonalElevation = 4.dp
+                                backgroundColor = MaterialTheme.colorScheme.surface
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     if (iconPainter != null) {

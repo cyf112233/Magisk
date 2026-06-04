@@ -2,6 +2,8 @@ package com.topjohnwu.magisk.ui
 
 import androidx.compose.animation.animateContentSize
 import android.net.Uri
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,7 +63,7 @@ data class RouteProcessTopBarState(
     val hasResult: Boolean = false
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun MagiskTopBar(
     currentRoute: String,
@@ -116,88 +118,101 @@ internal fun MagiskTopBar(
         else -> null
     }
 
-    CenterAlignedTopAppBar(
-        title = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = titleText,
-                    style = if (subtitleText != null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (subtitleText != null) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     Text(
-                        text = subtitleText,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = titleText,
+                        style = if (subtitleText != null) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                }
-            }
-        },
-        navigationIcon = {
-            if (!isRootRoute) {
-                IconButton(enabled = backEnabled, onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
-                }
-            } else {
-                val displayIcon = when (currentRoute) {
-                    AppRoute.DenyList -> Icons.Rounded.Block
-                    AppRoute.Install -> Icons.Rounded.Download
-                    AppRoute.Theme -> Icons.Rounded.Palette
-                    AppRoute.FlashPattern -> Icons.Rounded.Terminal
-                    AppRoute.ModuleActionPattern -> Icons.Rounded.PlayCircle
-                    AppRoute.History -> Icons.Rounded.HistoryEdu
-                    AppRoute.Settings -> Icons.Rounded.Settings
-                    else -> currentRoot.selectedIcon
-                }
-                Box(modifier = Modifier.padding(start = 12.dp)) {
-                    if (processState.running) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 3.dp
+                    if (subtitleText != null) {
+                        Text(
+                            text = subtitleText,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                    } else if (processState.hasResult) {
-                        Icon(
-                            imageVector = if (processState.success) Icons.Rounded.CheckCircle else Icons.Rounded.Error,
-                            contentDescription = null,
-                            tint = if (processState.success) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                        )
-                    } else {
-                        Icon(displayIcon, null, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
-            }
-        },
-        actions = {
-            if (currentRoute == AppRoute.Home) {
-                IconButton(onClick = onHomePower) {
-                    Icon(
-                        Icons.Rounded.PowerSettingsNew,
-                        contentDescription = stringResource(id = CoreR.string.reboot)
-                    )
+            },
+            navigationIcon = {
+                if (!isRootRoute) {
+                    IconButton(enabled = backEnabled, onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    }
+                } else {
+                    val displayIcon = when (currentRoute) {
+                        AppRoute.DenyList -> Icons.Rounded.Block
+                        AppRoute.Install -> Icons.Rounded.Download
+                        AppRoute.Theme -> Icons.Rounded.Palette
+                        AppRoute.FlashPattern -> Icons.Rounded.Terminal
+                        AppRoute.ModuleActionPattern -> Icons.Rounded.PlayCircle
+                        AppRoute.History -> Icons.Rounded.HistoryEdu
+                        AppRoute.Settings -> Icons.Rounded.Settings
+                        else -> currentRoot.selectedIcon
+                    }
+                    Box(modifier = Modifier.padding(start = 12.dp)) {
+                        if (processState.running) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 3.dp
+                            )
+                        } else if (processState.hasResult) {
+                            Icon(
+                                imageVector = if (processState.success) Icons.Rounded.CheckCircle else Icons.Rounded.Error,
+                                contentDescription = null,
+                                tint = if (processState.success) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            Icon(displayIcon, null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
                 }
-                IconButton(onClick = onOpenSettings) {
-                    Icon(
-                        Icons.Rounded.Settings,
-                        contentDescription = stringResource(id = CoreR.string.settings)
-                    )
+            },
+            actions = {
+                if (currentRoute == AppRoute.Home) {
+                    IconButton(onClick = onHomePower) {
+                        Icon(
+                            Icons.Rounded.PowerSettingsNew,
+                            contentDescription = stringResource(id = CoreR.string.reboot)
+                        )
+                    }
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
+                            Icons.Rounded.Settings,
+                            contentDescription = stringResource(id = CoreR.string.settings)
+                        )
+                    }
+                } else {
+                    Spacer(Modifier.width(48.dp))
                 }
-            } else {
-                Spacer(Modifier.width(48.dp))
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
-        ),
-        modifier = Modifier.statusBarsPadding()
-    )
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (processState.running) {
+            LinearWavyProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+            )
+        }
+    }
 }
 
 @Composable
@@ -280,27 +295,14 @@ private fun MagiskBottomBarItem(
         color = containerColor,
         contentColor = contentColor
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 4.dp, vertical = 7.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                modifier = Modifier.size(if (selected) 24.dp else 22.dp)
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
-                lineHeight = 12.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center
+                modifier = Modifier.size(if (selected) 26.dp else 24.dp)
             )
         }
     }

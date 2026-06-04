@@ -22,7 +22,7 @@ object MagiskUiDefaults {
     val ActionHeight: Dp = 56.dp
     val PrimaryActionHeight: Dp = 64.dp
     val IconActionSize: Dp = 52.dp
-    val BottomBarHeight: Dp = 88.dp
+    val BottomBarHeight: Dp = 72.dp
     val CardElevation: Dp = 2.dp
     val ExpandedCardElevation: Dp = 10.dp
     val FloatingBarTonalElevation: Dp = 8.dp
@@ -35,24 +35,9 @@ object MagiskUiDefaults {
     val MediumShape: Shape = RoundedCornerShape(20.dp)
     val LargeShape: Shape = RoundedCornerShape(24.dp)
     val ExtraLargeShape: Shape = RoundedCornerShape(32.dp)
-    val OrganicShape: Shape = RoundedCornerShape(
-        topStart = 48.dp,
-        bottomEnd = 48.dp,
-        topEnd = 16.dp,
-        bottomStart = 16.dp
-    )
-    val OrganicShapeReversed: Shape = RoundedCornerShape(
-        topStart = 16.dp,
-        bottomEnd = 16.dp,
-        topEnd = 48.dp,
-        bottomStart = 48.dp
-    )
-    val HeroShape: Shape = RoundedCornerShape(
-        topStart = 32.dp,
-        topEnd = 80.dp,
-        bottomStart = 80.dp,
-        bottomEnd = 32.dp
-    )
+    val OrganicShape: Shape = ExtraLargeShape
+    val OrganicShapeReversed: Shape = ExtraLargeShape
+    val HeroShape: Shape = ExtraLargeShape
     val PillShape: Shape = CircleShape
 
     fun screenContentPadding(

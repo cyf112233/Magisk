@@ -366,5 +366,7 @@
     <string name="theme_color_dark_on_surface">Dark On Surface</string>
     <string name="theme_color_light_error">Light Error</string>
     <string name="theme_color_dark_error">Dark Error</string>
+    <string name="settings_header_subtitle">Configure environment and application</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="settings_search" />
 </resources>

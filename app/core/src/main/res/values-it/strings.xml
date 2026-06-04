@@ -252,5 +252,6 @@
     <string name="app_not_found">Non è stata trovata un\'app per gestire questa azione</string>
     <string name="reboot_apply_change">Riavvia per applicare le modifiche</string>
     <string name="restore_app_confirmation">L\'app nascosta verrà sostituita con la versione originale. Sei sicuro di voler continuare?</string>
-
+    <string name="settings_header_subtitle">Configura l\'ambiente e l\'app</string>
+    <string name="copied_to_clipboard">Copiato negli appunti</string>
 </resources>

@@ -45,6 +45,7 @@ import com.topjohnwu.magisk.ui.component.MagiskDialogDismissButton
 import com.topjohnwu.magisk.ui.component.MagiskDialogOption
 import com.topjohnwu.magisk.ui.component.MagiskSnackbarHost
 import com.topjohnwu.magisk.ui.component.MagiskUiDefaults
+import com.topjohnwu.magisk.ui.component.PremiumIconContainer
 import com.topjohnwu.magisk.ui.theme.Theme
 import com.topjohnwu.magisk.view.Shortcuts
 import com.topjohnwu.superuser.Shell
@@ -81,9 +82,7 @@ fun SettingsScreen(
             contentPadding = MagiskUiDefaults.screenContentPadding(),
             verticalArrangement = Arrangement.spacedBy(MagiskUiDefaults.ListItemSpacing)
         ) {
-            item {
-                SettingsExpressiveHeader()
-            }
+
 
             item {
                 OrganicSettingsSection(
@@ -516,36 +515,7 @@ fun SettingsScreen(
     }
 }
 
-@Composable
-private fun SettingsExpressiveHeader() {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MagiskUiDefaults.HeroShape,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Configura l'ambiente e l'app",
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
-                )
-                Surface(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-                    modifier = Modifier.size(56.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.Settings, null, tint = MaterialTheme.colorScheme.onPrimary)
-                    }
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
 private fun OrganicSettingsSection(
@@ -558,7 +528,7 @@ private fun OrganicSettingsSection(
         icon = icon,
         iconContainerSize = 38.dp,
         iconPadding = 9.dp,
-        iconShape = MagiskUiDefaults.SmallShape,
+        iconShape = CircleShape,
         iconContainerAlpha = 0.85f,
         cardShape = MagiskUiDefaults.ExtraLargeShape,
         content = content
@@ -584,19 +554,22 @@ private fun ExpressiveSettingItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                PremiumIconContainer(
+                    size = 44.dp,
                     shape = CircleShape,
-                    modifier = Modifier.size(44.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            icon,
-                            null,
-                            modifier = Modifier.size(22.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                    backgroundBrush = Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
                         )
-                    }
+                    )
+                ) {
+                    Icon(
+                        icon,
+                        null,
+                        modifier = Modifier.size(22.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
                 Spacer(Modifier.width(20.dp))
             }
@@ -644,19 +617,22 @@ private fun ExpressiveToggleItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                PremiumIconContainer(
+                    size = 44.dp,
                     shape = CircleShape,
-                    modifier = Modifier.size(44.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            icon,
-                            null,
-                            modifier = Modifier.size(22.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                    backgroundBrush = Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
                         )
-                    }
+                    )
+                ) {
+                    Icon(
+                        icon,
+                        null,
+                        modifier = Modifier.size(22.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
                 Spacer(Modifier.width(20.dp))
             }
@@ -702,256 +678,3 @@ data class SelectorSpec(
 )
 
 data class InputSpec(val title: String, val initialValue: String, val onConfirm: (String) -> Unit)
-
-data class SettingsUiState(
-    val darkThemeMode: Int = Config.darkTheme,
-    val themeOrdinal: Int = Config.themeOrdinal,
-    val selectedThemeIndex: Int = Theme.values().indexOf(Theme.selected).coerceAtLeast(0),
-    val themeName: String = Theme.selected.themeName,
-    val useLocaleManager: Boolean = LocaleSetting.useLocaleManager,
-    val languageSystemName: String = LocaleSetting.instance.appLocale?.let { it.getDisplayName(it) }
-        ?: AppContext.getString(CoreR.string.system_default),
-    val languageIndex: Int = LocaleSetting.available.tags.indexOf(Config.locale)
-        .let { if (it < 0) 0 else it },
-    val languageName: String = LocaleSetting.available.names.getOrElse(
-        LocaleSetting.available.tags.indexOf(
-            Config.locale
-        ).let { if (it < 0) 0 else it }) { AppContext.getString(CoreR.string.system_default) },
-    val canAddShortcut: Boolean = isRunningAsStub && ShortcutManagerCompat.isRequestPinShortcutSupported(
-        AppContext
-    ),
-    val canMigrateApp: Boolean = Info.env.isActive && Const.USER_ID == 0,
-    val isHiddenApp: Boolean = AppContext.packageName != BuildConfig.APP_PACKAGE_NAME,
-    val checkUpdate: Boolean = Config.checkUpdate,
-    val updateChannel: Int = Config.updateChannel,
-    val isCustomChannel: Boolean = Config.updateChannel == Config.Value.CUSTOM_CHANNEL,
-    val updateChannelName: String = AppContext.resources.getStringArray(CoreR.array.update_channel)
-        .getOrElse(Config.updateChannel) { "-" },
-    val customChannelUrl: String = Config.customChannelUrl,
-    val doh: Boolean = Config.doh,
-    val downloadDir: String = Config.downloadDir,
-    val downloadDirPath: String = MediaStoreUtils.fullPath(Config.downloadDir),
-    val randName: Boolean = Config.randName,
-    val zygisk: Boolean = Config.zygisk,
-    val zygiskMismatch: Boolean = Config.zygisk != Info.isZygiskEnabled,
-    val denyList: Boolean = Config.denyList,
-    val showMagisk: Boolean = Info.env.isActive,
-    val showMagiskAdvanced: Boolean = Info.env.isActive && Const.Version.atLeast_24_0(),
-    val showDenyListConfig: Boolean = Const.Version.atLeast_24_0(),
-    val showSuperuser: Boolean = Info.showSuperUser,
-    val deviceSecure: Boolean = Info.isDeviceSecure,
-    val suTapjack: Boolean = Config.suTapjack,
-    val suAuth: Boolean = Config.suAuth,
-    val hideTapjackOnSPlus: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-    val rootMode: Int = Config.rootMode,
-    val accessModeName: String = AppContext.resources.getStringArray(CoreR.array.su_access)
-        .getOrElse(Config.rootMode) { "-" },
-    val suMultiuserMode: Int = Config.suMultiuserMode,
-    val multiuserModeName: String = AppContext.resources.getStringArray(CoreR.array.multiuser_mode)
-        .getOrElse(Config.suMultiuserMode) { "-" },
-    val multiuserModeEnabled: Boolean = Const.USER_ID == 0,
-    val multiuserSummary: String = AppContext.resources.getStringArray(CoreR.array.multiuser_summary)
-        .getOrElse(Config.suMultiuserMode) { "-" },
-    val suMntNamespaceMode: Int = Config.suMntNamespaceMode,
-    val mountNamespaceName: String = AppContext.resources.getStringArray(CoreR.array.namespace)
-        .getOrElse(Config.suMntNamespaceMode) { "-" },
-    val mountNamespaceSummary: String = AppContext.resources.getStringArray(CoreR.array.namespace_summary)
-        .getOrElse(Config.suMntNamespaceMode) { "-" },
-    val suAutoResponse: Int = Config.suAutoResponse,
-    val autoResponseName: String = AppContext.resources.getStringArray(CoreR.array.auto_response)
-        .getOrElse(Config.suAutoResponse) { "-" },
-    val suTimeoutIndex: Int = SU_TIMEOUT_VALUES.indexOf(Config.suDefaultTimeout)
-        .let { if (it < 0) 0 else it },
-    val requestTimeoutName: String = AppContext.resources.getStringArray(CoreR.array.request_timeout)
-        .getOrElse(
-            SU_TIMEOUT_VALUES.indexOf(Config.suDefaultTimeout)
-                .let { if (it < 0) 0 else it }) { "-" },
-    val suNotification: Int = Config.suNotification,
-    val suNotificationName: String = AppContext.resources.getStringArray(CoreR.array.su_notification)
-        .getOrElse(Config.suNotification) { "-" },
-    val suReAuth: Boolean = Config.suReAuth,
-    val showReauthenticate: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.O,
-    val suRestrict: Boolean = Config.suRestrict,
-    val showRestrict: Boolean = Const.Version.atLeast_30_1()
-)
-
-class SettingsComposeViewModel : ViewModel() {
-    var state by mutableStateOf(snapshotState())
-        private set
-    private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val messages: SharedFlow<String> = _messages.asSharedFlow()
-    private var refreshJob: Job? = null
-
-    fun refreshState() {
-        refreshJob?.cancel()
-        refreshJob = viewModelScope.launch { state = snapshotState() }
-    }
-
-    fun setDarkMode(mode: Int) {
-        Config.darkTheme = mode; state = snapshotState()
-    }
-
-    fun setThemeOrdinal(index: Int) {
-        val theme = Theme.values().getOrNull(index) ?: Theme.Default; Config.themeOrdinal =
-            if (theme == Theme.Default) -1 else theme.ordinal; state = snapshotState()
-    }
-
-    fun setLanguageByIndex(index: Int) {
-        if (state.useLocaleManager) return;
-        val tags = LocaleSetting.available.tags; if (tags.isEmpty()) return;
-        val safe = index.coerceIn(0, tags.lastIndex); Config.locale = tags[safe]; state =
-            snapshotState()
-    }
-
-    fun addShortcut() {
-        runCatching {
-            Shortcuts.addHomeIcon(AppContext); state = snapshotState()
-        }.onFailure { _messages.tryEmit(AppContext.getString(CoreR.string.failure)) }
-    }
-
-    fun hideApp(activity: UIActivity<*>?, label: String) {
-        val safeLabel = label.trim()
-        if (activity == null || safeLabel.isBlank() || safeLabel.length > AppMigration.MAX_LABEL_LENGTH) {
-            _messages.tryEmit(AppContext.getString(CoreR.string.failure))
-            return
-        }
-        viewModelScope.launch {
-            val success = withContext(Dispatchers.IO) {
-                AppMigration.patchAndHide(activity, safeLabel)
-            }
-            if (!success) {
-                _messages.emit(AppContext.getString(CoreR.string.failure))
-            }
-            state = snapshotState()
-        }
-    }
-
-    fun restoreApp(activity: UIActivity<*>?) {
-        if (activity == null) {
-            _messages.tryEmit(AppContext.getString(CoreR.string.failure))
-            return
-        }
-        viewModelScope.launch {
-            val success = withContext(Dispatchers.IO) {
-                AppMigration.restoreApp(activity)
-            }
-            if (!success) {
-                _messages.emit(AppContext.getString(CoreR.string.failure))
-            }
-            state = snapshotState()
-        }
-    }
-
-    fun setCheckUpdate(v: Boolean) {
-        Config.checkUpdate = v; state = snapshotState()
-    }
-
-    fun setUpdateChannel(c: Int) {
-        Config.updateChannel = c; Info.resetUpdate(); state = snapshotState()
-    }
-
-    fun setCustomChannelUrl(u: String) {
-        Config.customChannelUrl = u; Info.resetUpdate(); state = snapshotState()
-    }
-
-    fun setDoH(v: Boolean) {
-        Config.doh = v; state = snapshotState()
-    }
-
-    fun setDownloadDir(v: String) {
-        Config.downloadDir = v; state = snapshotState()
-    }
-
-    fun setRandName(v: Boolean) {
-        Config.randName = v; state = snapshotState()
-    }
-
-    fun createSystemlessHosts() {
-        viewModelScope.launch {
-            val ok = RootUtils.addSystemlessHosts(); _messages.tryEmit(
-            AppContext.getString(if (ok) CoreR.string.settings_hosts_toast else CoreR.string.failure)
-        )
-        }
-    }
-
-    fun setZygisk(v: Boolean) {
-        Config.zygisk = v; state =
-            snapshotState(); if (v != Info.isZygiskEnabled) _messages.tryEmit(
-            AppContext.getString(
-                CoreR.string.reboot_apply_change
-            )
-        )
-    }
-
-    fun setDenyList(v: Boolean) {
-        viewModelScope.launch {
-            val cmd = if (v) "enable" else "disable";
-            val ok = withContext(Dispatchers.IO) {
-                Shell.cmd("magisk --denylist $cmd").exec().isSuccess
-            }; state = if (ok) {
-            Config.denyList = v; snapshotState()
-        } else {
-            _messages.emit(AppContext.getString(CoreR.string.failure)); snapshotState()
-        }
-        }
-    }
-
-    fun setRootMode(v: Int) {
-        Config.rootMode = v; state = snapshotState()
-    }
-
-    fun setSuMultiuserMode(v: Int) {
-        Config.suMultiuserMode = v; state = snapshotState()
-    }
-
-    fun setSuMntNamespaceMode(v: Int) {
-        Config.suMntNamespaceMode = v; state = snapshotState()
-    }
-
-    fun setSuAuth(v: Boolean) {
-        Config.suAuth = v; state = snapshotState()
-    }
-
-    fun setSuAutoResponse(v: Int) {
-        Config.suAutoResponse = v; state = snapshotState()
-    }
-
-    fun setSuTimeoutIndex(index: Int) {
-        val safe = index.coerceIn(0, SU_TIMEOUT_VALUES.lastIndex); Config.suDefaultTimeout =
-            SU_TIMEOUT_VALUES[safe]; state = snapshotState()
-    }
-
-    fun setSuNotification(v: Int) {
-        Config.suNotification = v; state = snapshotState()
-    }
-
-    fun setSuReAuth(v: Boolean) {
-        Config.suReAuth = v; state = snapshotState()
-    }
-
-    fun setSuTapjack(v: Boolean) {
-        Config.suTapjack = v; state = snapshotState()
-    }
-
-    fun setSuRestrict(v: Boolean) {
-        Config.suRestrict = v; state = snapshotState()
-    }
-
-    fun setMessageRes(res: Int) {
-        _messages.tryEmit(AppContext.getString(res))
-    }
-
-    private fun snapshotState(): SettingsUiState {
-        return SettingsUiState()
-    }
-
-    companion object {
-        val Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST") return SettingsComposeViewModel() as T
-            }
-        }
-    }
-}
-
-private val SU_TIMEOUT_VALUES = listOf(10, 15, 20, 30, 45, 60)

@@ -64,7 +64,10 @@ import com.topjohnwu.magisk.core.utils.MediaStoreUtils.displayName
 import com.topjohnwu.magisk.ui.animation.MagiskMotion
 import com.topjohnwu.magisk.ui.component.ExpressiveSection
 import com.topjohnwu.magisk.ui.component.ConfirmResult
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
 import com.topjohnwu.magisk.ui.component.MagiskUiDefaults
+import com.topjohnwu.magisk.ui.component.PremiumIconContainer
 import com.topjohnwu.magisk.ui.component.rememberConfirmDialog
 import com.topjohnwu.magisk.ui.navigation.Route
 import com.topjohnwu.magisk.core.R as CoreR
@@ -319,10 +322,25 @@ private fun ExpressiveMethodRow(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
-                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                shape = MagiskUiDefaults.PillShape,
-                modifier = Modifier.size(MagiskUiDefaults.IconContainerSize)
+            val iconShape = RoundedCornerShape(12.dp)
+            PremiumIconContainer(
+                size = MagiskUiDefaults.IconContainerSize,
+                shape = iconShape,
+                backgroundBrush = if (selected) {
+                    Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                        )
+                    )
+                } else {
+                    Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                        )
+                    )
+                }
             ) {
                 Icon(
                     icon, null,

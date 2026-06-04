@@ -7,7 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -210,9 +209,9 @@ fun ModuleScreen(
                             Surface(
                                 onClick = { showSearch = !showSearch },
                                 modifier = Modifier
-                                    .height(MagiskUiDefaults.ActionHeight)
+                                    .height(MagiskUiDefaults.PrimaryActionHeight)
                                     .weight(0.3f),
-                                shape = MagiskUiDefaults.SmallShape,
+                                shape = MagiskUiDefaults.MediumShape,
                                 color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
@@ -229,7 +228,7 @@ fun ModuleScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(MagiskUiDefaults.PrimaryActionHeight),
-                                shape = MagiskUiDefaults.PillShape
+                                shape = MagiskUiDefaults.MediumShape
                             ) {
                                 Icon(
                                     Icons.Rounded.FileUpload,
@@ -253,7 +252,7 @@ fun ModuleScreen(
                                 value = query,
                                 onValueChange = { query = it },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = MagiskUiDefaults.SmallShape,
+                                shape = MagiskUiDefaults.MediumShape,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
@@ -378,204 +377,5 @@ private fun OnlineModuleDialog(
         dismissButton = {
             MagiskDialogDismissButton(onClick = onDismiss)
         }
-    )
-}
-
-data class ModuleUiItem(
-    val id: String,
-    val name: String,
-    val versionAuthor: String,
-    val description: String,
-    val enabled: Boolean,
-    val removed: Boolean,
-    val updated: Boolean,
-    val showAction: Boolean,
-    val noticeText: String?,
-    val showUpdate: Boolean,
-    val updateReady: Boolean,
-    val update: OnlineModule?,
-    val badges: List<String>,
-    val searchKey: String,
-    val expanded: Boolean = false
-)
-
-data class ModuleUiState(val loading: Boolean = true, val modules: List<ModuleUiItem> = emptyList())
-
-class ModuleComposeViewModel(private val moduleProvider: suspend () -> List<LocalModule>) :
-    ViewModel() {
-    private val _state = MutableStateFlow(ModuleUiState())
-    val state: StateFlow<ModuleUiState> = _state
-    private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val messages: SharedFlow<String> = _messages.asSharedFlow()
-    private var refreshJob: Job? = null
-    private var metadataJob: Job? = null
-    private val moduleCache = linkedMapOf<String, LocalModule>()
-    private val cacheLock = Any()
-    private var lastRefreshAt = 0L
-    private var lastMetadataRefreshAt = 0L
-
-    fun refresh(force: Boolean = false) {
-        val now = SystemClock.elapsedRealtime()
-        if (!force && _state.value.modules.isNotEmpty() && now - lastRefreshAt < MIN_REFRESH_INTERVAL_MS) {
-            return
-        }
-        lastRefreshAt = now
-        refreshJob?.cancel()
-        metadataJob?.cancel()
-        val hadModules = _state.value.modules.isNotEmpty()
-        refreshJob = viewModelScope.launch {
-            if (!hadModules) {
-                _state.update { it.copy(loading = true) }
-            }
-            val list =
-                if (Info.env.isActive && isModuleRepoLoaded()) readInstalledModules() else emptyList()
-            synchronized(cacheLock) {
-                moduleCache.clear()
-                list.forEach { moduleCache[it.id] = it }
-            }
-            val currentExpanded = _state.value.modules.filter { it.expanded }.map { it.id }.toSet()
-            _state.update {
-                it.copy(
-                    loading = false,
-                    modules = list.map { it.toUiItem(currentExpanded.contains(it.id)) })
-            }
-            if (list.isNotEmpty() && now - lastMetadataRefreshAt >= MIN_METADATA_REFRESH_INTERVAL_MS) {
-                lastMetadataRefreshAt = now
-                metadataJob = launch(Dispatchers.IO) {
-                    list.forEach { runCatching { it.fetch() } }
-                    val currentExpandedMetadata =
-                        _state.value.modules.filter { it.expanded }.map { it.id }.toSet()
-                    val updatedUi =
-                        list.map { it.toUiItem(currentExpandedMetadata.contains(it.id)) }
-                    withContext(Dispatchers.Main) {
-                        _state.update { st -> st.copy(modules = updatedUi) }
-                    }
-                }
-            }
-        }
-    }
-
-    fun toggleExpanded(id: String) {
-        _state.update { st ->
-            st.copy(modules = st.modules.map {
-                if (it.id == id) it.copy(expanded = !it.expanded) else it
-            })
-        }
-    }
-
-    fun toggleEnabled(id: String) = updateModule(id) { it.enable = !it.enable }
-    fun toggleRemove(id: String) = updateModule(id) { it.remove = !it.remove }
-    fun postMessageRes(@androidx.annotation.StringRes res: Int) {
-        _messages.tryEmit(AppContext.getString(res))
-    }
-
-    private fun updateModule(id: String, block: (LocalModule) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val module = synchronized(cacheLock) { moduleCache[id] } ?: run {
-                val list = readInstalledModules()
-                synchronized(cacheLock) {
-                    moduleCache.clear()
-                    list.forEach { moduleCache[it.id] = it }
-                }
-                val currentExp = _state.value.modules.filter { it.expanded }.map { it.id }.toSet()
-                withContext(Dispatchers.Main) {
-                    _state.update {
-                        it.copy(modules = list.map { m ->
-                            m.toUiItem(
-                                currentExp.contains(
-                                    m.id
-                                )
-                            )
-                        })
-                    }
-                }
-                synchronized(cacheLock) { moduleCache[id] } ?: return@launch
-            }
-            val ok = runCatching { block(module) }.isSuccess
-            if (!ok) {
-                withContext(Dispatchers.Main) {
-                    _messages.emit(AppContext.getString(CoreR.string.failure))
-                }
-                return@launch
-            }
-            val currentExpanded = _state.value.modules.find { it.id == id }?.expanded ?: false
-            val updatedUi = module.toUiItem(currentExpanded)
-            withContext(Dispatchers.Main) {
-                _state.update { st ->
-                    val index = st.modules.indexOfFirst { it.id == id }
-                    if (index < 0) st
-                    else {
-                        val copy = st.modules.toMutableList()
-                        copy[index] = updatedUi
-                        st.copy(modules = copy)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun isModuleRepoLoaded(): Boolean =
-        withTimeoutOrNull(3000) { withContext(Dispatchers.IO) { LocalModule.loaded() } } ?: false
-
-    private suspend fun readInstalledModules(): List<LocalModule> =
-        withTimeoutOrNull(5000) { withContext(Dispatchers.IO) { moduleProvider() } } ?: emptyList()
-
-    object Factory : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            @Suppress("UNCHECKED_CAST") return ModuleComposeViewModel { LocalModule.installed() } as T
-        }
-    }
-
-    companion object {
-        private const val MIN_REFRESH_INTERVAL_MS = 1200L
-        private const val MIN_METADATA_REFRESH_INTERVAL_MS = 30_000L
-    }
-}
-
-private fun LocalModule.toUiItem(expanded: Boolean = false): ModuleUiItem {
-    val zygiskLabel = AppContext.getString(CoreR.string.zygisk)
-    val safeName = name.ifBlank { id }
-    val safeDescription = description
-    val noticeText: String? = when {
-        zygiskUnloaded -> AppContext.getString(CoreR.string.zygisk_module_unloaded)
-        Info.isZygiskEnabled && isRiru -> AppContext.getString(
-            CoreR.string.suspend_text_riru,
-            zygiskLabel
-        )
-
-        !Info.isZygiskEnabled && isZygisk -> AppContext.getString(
-            CoreR.string.suspend_text_zygisk,
-            zygiskLabel
-        )
-
-        else -> null
-    }
-    return ModuleUiItem(
-        id,
-        safeName,
-        AppContext.getString(CoreR.string.module_version_author, version, author),
-        safeDescription,
-        enable,
-        remove,
-        updated,
-        hasAction && noticeText == null,
-        noticeText,
-        updateInfo != null,
-        outdated && !remove && enable,
-        updateInfo,
-        buildList {
-            if (outdated) add(AppContext.getString(CoreR.string.module_badge_update))
-            if (updated) add(AppContext.getString(CoreR.string.module_badge_updated))
-            if (remove) add(AppContext.getString(CoreR.string.module_badge_removing))
-            if (!enable) add(AppContext.getString(CoreR.string.module_badge_disabled))
-        },
-        buildString {
-            append(safeName.lowercase(Locale.ROOT))
-            append('\n')
-            append(id.lowercase(Locale.ROOT))
-            append('\n')
-            append(safeDescription.lowercase(Locale.ROOT))
-        },
-        expanded
     )
 }

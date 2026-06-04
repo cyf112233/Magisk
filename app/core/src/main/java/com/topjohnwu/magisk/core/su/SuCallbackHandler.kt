@@ -76,7 +76,6 @@ object SuCallbackHandler {
         if (notify || Config.suNotification == Config.Value.NOTIFICATION_STATUS_BAR)
             notify(context, log.action >= SuPolicy.ALLOW, log.appName)
         SuEvents.notifyLogUpdated()
-        SuEvents.notifyPolicyChanged()
     }
 
     private fun handleNotify(context: Context, data: Bundle) {
@@ -91,7 +90,6 @@ object SuCallbackHandler {
         }.getOrNull() ?: "[UID] $uid"
 
         notify(context, policy >= SuPolicy.ALLOW, appName)
-        SuEvents.notifyPolicyChanged()
     }
 
     fun notify(granted: Boolean, appName: String) {

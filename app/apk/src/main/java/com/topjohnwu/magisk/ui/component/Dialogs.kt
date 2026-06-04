@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -117,19 +118,19 @@ fun MagiskDialogTitle(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (icon != null) {
             Surface(
-                color = iconTint.copy(alpha = 0.14f),
+                color = iconTint.copy(alpha = 0.12f),
                 shape = CircleShape,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(42.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(22.dp),
                         tint = iconTint
                     )
                 }
@@ -154,17 +155,24 @@ fun MagiskDialogConfirmButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier.height(48.dp),
         shape = CircleShape,
         colors = if (destructive) {
-            ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            )
         } else {
-            ButtonDefaults.buttonColors()
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         }
     ) {
         Text(
             text = text ?: stringResource(android.R.string.ok),
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
@@ -177,12 +185,16 @@ fun MagiskDialogDismissButton(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = modifier,
-        shape = CircleShape
+        modifier = modifier.height(48.dp),
+        shape = CircleShape,
+        colors = ButtonDefaults.textButtonColors(
+            contentColor = MaterialTheme.colorScheme.outline
+        )
     ) {
         Text(
             text = text ?: stringResource(android.R.string.cancel),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
@@ -200,9 +212,9 @@ fun MagiskDialogOption(
 ) {
     val containerColor by MagiskMotion.animateColor(
         targetValue = if (selected) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.24f)
         } else {
-            Color.Transparent
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f)
         },
         animationSpec = MagiskMotion.quickColorSpec(),
         label = "dialogOptionContainer"
@@ -226,7 +238,7 @@ fun MagiskDialogOption(
 
                 icon != null -> {
                     Surface(
-                        color = accentColor.copy(alpha = 0.14f),
+                        color = accentColor.copy(alpha = 0.12f),
                         shape = CircleShape,
                         modifier = Modifier.size(44.dp)
                     ) {
@@ -252,7 +264,7 @@ fun MagiskDialogOption(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                     )
                 }
             }

@@ -57,9 +57,7 @@ fun ThemeScreen(
             verticalArrangement = Arrangement.spacedBy(MagiskUiDefaults.SectionSpacing),
             modifier = Modifier.fillMaxSize()
         ) {
-            item(span = { GridItemSpan(2) }) {
-                ThemeExpressiveHeader()
-            }
+
 
             item(span = { GridItemSpan(2) }) {
                 DarkModeExpressiveSection(
@@ -194,36 +192,7 @@ fun ThemeScreen(
     }
 }
 
-@Composable
-private fun ThemeExpressiveHeader() {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MagiskUiDefaults.HeroShape,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(id = CoreR.string.theme_personalize_experience),
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
-                )
-                Surface(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-                    modifier = Modifier.size(56.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.Palette, null, tint = MaterialTheme.colorScheme.onPrimary)
-                    }
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
 private fun DarkModeExpressiveSection(
@@ -579,7 +548,6 @@ private fun CustomColorRow(
             Surface(
                 shape = CircleShape,
                 color = Color(colorInt),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
                 modifier = Modifier.size(32.dp)
             ) {}
             Spacer(Modifier.width(16.dp))
@@ -645,7 +613,6 @@ private fun ColorHexDialog(
                     Surface(
                         shape = CircleShape,
                         color = Color(currentColorInt),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
                         modifier = Modifier.size(40.dp)
                     ) {}
                     Text(

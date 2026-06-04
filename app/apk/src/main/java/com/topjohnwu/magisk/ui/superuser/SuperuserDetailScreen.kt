@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteSweep
@@ -78,6 +79,8 @@ import com.topjohnwu.magisk.core.utils.MediaStoreUtils.outputStream
 import com.topjohnwu.magisk.ui.RefreshOnResume
 import com.topjohnwu.magisk.ui.component.MagiskSnackbarHost
 import com.topjohnwu.magisk.ui.component.MagiskUiDefaults
+import com.topjohnwu.magisk.ui.component.PremiumCard
+import com.topjohnwu.magisk.ui.component.PremiumIconContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -284,18 +287,14 @@ private fun TimelineLogItem(index: Int, total: Int, item: SuLogUiItem) {
             )
         }
 
+        val cardShape = MagiskUiDefaults.ExtraLargeShape
         // Log Content Card
-        ElevatedCard(
-            shape = RoundedCornerShape(
-                topEnd = 32.dp,
-                bottomStart = 32.dp,
-                topStart = 8.dp,
-                bottomEnd = 8.dp
-            ),
+        PremiumCard(
+            shape = cardShape,
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             modifier = Modifier
                 .padding(vertical = 8.dp, horizontal = 4.dp)
-                .weight(1f),
-            colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                .weight(1f)
         ) {
             Box {
                 Icon(
@@ -312,10 +311,10 @@ private fun TimelineLogItem(index: Int, total: Int, item: SuLogUiItem) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val appIconPainter =
                             remember(item.icon) { BitmapPainter(item.icon.asImageBitmap()) }
-                        Surface(
-                            modifier = Modifier.size(34.dp),
-                            shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                        PremiumIconContainer(
+                            size = 34.dp,
+                            shape = CircleShape,
+                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
                         ) {
                             Icon(
                                 painter = appIconPainter,
@@ -354,7 +353,7 @@ private fun TimelineLogItem(index: Int, total: Int, item: SuLogUiItem) {
                     // FORMATTED INFO SECTION
                     Surface(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MagiskUiDefaults.MediumShape,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
@@ -412,133 +411,5 @@ private fun HexagonNode(color: Color) {
         }
         drawPath(path, color)
         drawPath(path, Color.White.copy(alpha = 0.25f), style = Fill)
-    }
-}
-
-data class SuLogUiItem(
-    val id: Int,
-    val appName: String,
-    val icon: Bitmap,
-    val allowed: Boolean,
-    val infoLines: List<String>,
-    val command: String
-)
-
-data class SuperuserLogsUiState(
-    val loading: Boolean = true,
-    val items: List<SuLogUiItem> = emptyList()
-)
-
-class SuperuserLogsComposeViewModel(private val repo: LogRepository) : ViewModel() {
-    private val _state = MutableStateFlow(SuperuserLogsUiState())
-    val state: StateFlow<SuperuserLogsUiState> = _state
-    private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val messages: SharedFlow<String> = _messages.asSharedFlow()
-    private var refreshJob: Job? = null
-    private val pm = AppContext.packageManager
-    private val iconCache = mutableMapOf<String, Bitmap>()
-
-    fun refresh() {
-        refreshJob?.cancel()
-        val hadItems = _state.value.items.isNotEmpty()
-        refreshJob = viewModelScope.launch {
-            if (!hadItems) {
-                _state.update { it.copy(loading = true) }
-            }
-            val items = withContext(Dispatchers.IO) {
-                repo.fetchSuLogs().map { it.toUiItem() }
-            }
-            _state.update { it.copy(loading = false, items = items) }
-        }
-    }
-
-    fun clearLogs() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) { repo.clearLogs() }
-            _messages.emit(AppContext.getString(CoreR.string.logs_cleared))
-            refresh()
-        }
-    }
-
-    fun saveLogs() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = runCatching {
-                val name = "superuser_log_%s.log".format(
-                    System.currentTimeMillis().toTime(timeFormatStandard)
-                )
-                val logFile = MediaStoreUtils.getFile(name)
-                logFile.uri.outputStream().bufferedWriter().use { writer ->
-                    state.value.items.forEach { item ->
-                        writer.write("${item.appName}\n")
-                        item.infoLines.forEach { line -> writer.write("$line\n") }
-                        if (item.command.isNotBlank()) {
-                            writer.write("${item.command}\n")
-                        }
-                        writer.write("\n")
-                    }
-                }
-                logFile.uri.toString()
-            }
-            withContext(Dispatchers.Main) {
-                result.onSuccess { path ->
-                    _messages.emit(
-                        AppContext.getString(
-                            CoreR.string.saved_to_path,
-                            path
-                        )
-                    )
-                }
-                    .onFailure { _messages.emit(AppContext.getString(CoreR.string.failure)) }
-            }
-        }
-    }
-
-    fun postExternalRwDenied() {
-        _messages.tryEmit(AppContext.getString(CoreR.string.external_rw_permission_denied))
-    }
-
-    private fun SuLog.toUiItem(): SuLogUiItem {
-        val res = AppContext.resources
-        val infoLines = mutableListOf<String>()
-        infoLines += time.toTime(timeDateFormat)
-        val primaryLine = buildString {
-            append(res.getString(CoreR.string.target_uid, toUid))
-            append("  ")
-            append(res.getString(CoreR.string.pid, fromPid))
-            if (target != -1) {
-                val pid = if (target == 0) "magiskd" else target.toString()
-                append("  ")
-                append(res.getString(CoreR.string.target_pid, pid))
-            }
-        }
-        infoLines += primaryLine
-        if (context.isNotEmpty()) {
-            infoLines += res.getString(CoreR.string.selinux_context, context)
-        }
-        if (gids.isNotEmpty()) {
-            infoLines += res.getString(CoreR.string.supp_group, gids)
-        }
-        val icon = iconCache.getOrPut(packageName) {
-            runCatching { pm.getApplicationIcon(packageName) }
-                .getOrDefault(pm.defaultActivityIcon)
-                .toBitmap()
-        }
-
-        return SuLogUiItem(
-            id = id,
-            appName = appName,
-            icon = icon,
-            allowed = action >= SuPolicy.ALLOW,
-            infoLines = infoLines,
-            command = command
-        )
-    }
-
-    companion object {
-        val Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST") return SuperuserLogsComposeViewModel(ServiceLocator.logRepo) as T
-            }
-        }
     }
 }

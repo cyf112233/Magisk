@@ -116,7 +116,8 @@ fun TerminalLogContainer(
         }
 
         ElevatedCard(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             shape = MagiskUiDefaults.LargeShape,
             colors = CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh

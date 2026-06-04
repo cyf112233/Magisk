@@ -87,6 +87,11 @@ class SuRequestHandler(
     }
 
     suspend fun respond(action: Int, time: Long) {
+        val previousPolicy = policy.policy
+        val previousRemain = policy.remain
+        val previousLogging = policy.logging
+        val previousNotification = policy.notification
+
         if (action == SuPolicy.ALLOW && Config.suRestrict) {
             policy.policy = SuPolicy.RESTRICT
         } else {
@@ -109,6 +114,11 @@ class SuRequestHandler(
             }
             if (time >= 0) {
                 policyDB.update(policy)
+                val policyChanged =
+                    previousPolicy != policy.policy ||
+                    previousRemain != policy.remain ||
+                    previousLogging != policy.logging ||
+                    previousNotification != policy.notification
 
                 val appInfo = pkgInfo.applicationInfo
                 val appName = appInfo?.getLabel(pm)
@@ -133,7 +143,9 @@ class SuRequestHandler(
                 val granted = policy.policy >= SuPolicy.ALLOW
                 SuCallbackHandler.notify(granted, appName)
 
-                SuEvents.notifyPolicyChanged()
+                if (policyChanged) {
+                    SuEvents.notifyPolicyChanged()
+                }
                 SuEvents.notifyLogUpdated()
             }
         }

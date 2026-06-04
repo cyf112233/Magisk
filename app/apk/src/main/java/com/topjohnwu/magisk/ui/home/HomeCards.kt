@@ -1,13 +1,14 @@
 package com.topjohnwu.magisk.ui.home
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.NavigateNext
 import androidx.compose.material.icons.rounded.AppShortcut
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.BrowserUpdated
@@ -59,6 +61,7 @@ import coil.compose.AsyncImage
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.ui.component.MagiskCard
 import com.topjohnwu.magisk.ui.component.MagiskUiDefaults
+import com.topjohnwu.magisk.ui.component.PremiumIconContainer
 import com.topjohnwu.magisk.core.R as CoreR
 
 @Composable
@@ -464,14 +467,11 @@ internal fun HomeAppCard(
 
 @Composable
 internal fun HomeUninstallCard(onClick: () -> Unit) {
+    val cardShape = MagiskUiDefaults.ExtraLargeShape
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(
-            topStart = 16.dp,
-            bottomEnd = 16.dp,
-            topEnd = 48.dp,
-            bottomStart = 48.dp
-        ),
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = cardShape,
         color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f),
         onClick = onClick
     ) {
@@ -560,7 +560,6 @@ internal fun HomeContributorsList(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                         modifier = Modifier.size(72.dp)
                     ) {
                         AsyncImage(

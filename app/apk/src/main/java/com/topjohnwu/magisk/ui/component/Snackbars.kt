@@ -1,6 +1,5 @@
 package com.topjohnwu.magisk.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,8 +51,7 @@ private fun MagiskSnackbar(data: SnackbarData) {
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = MagiskUiDefaults.FloatingBarTonalElevation,
-        shadowElevation = MagiskUiDefaults.CardElevation,
-        border = BorderStroke(1.dp, accent.copy(alpha = 0.22f))
+        shadowElevation = MagiskUiDefaults.CardElevation
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),

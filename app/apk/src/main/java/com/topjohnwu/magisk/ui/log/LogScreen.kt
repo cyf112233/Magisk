@@ -79,71 +79,78 @@ fun LogsScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = MagiskUiDefaults.screenContentPadding(),
-            verticalArrangement = Arrangement.spacedBy(MagiskUiDefaults.ListItemSpacing)
-        ) {
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(MagiskUiDefaults.SectionSpacing)) {
-                    LogHeroCard(
-                        stats = stats,
-                        loading = state.loading,
-                        onRefresh = viewModel::refresh,
-                        onSave = {
-                            activity?.withPermission(WRITE_EXTERNAL_STORAGE) { granted ->
-                                if (granted) viewModel.saveMagiskLog()
-                            }
-                        },
-                        onClear = {
-                            scope.launch {
-                                val result = clearDialog.awaitConfirm(
-                                    title = AppContext.getString(CoreR.string.log_clear_confirm_title),
-                                    content = AppContext.getString(CoreR.string.log_clear_confirm_msg),
-                                    confirm = AppContext.getString(CoreR.string.menuClearLog)
-                                )
-                                if (result == ConfirmResult.Confirmed) {
-                                    viewModel.clearMagiskLogs()
-                                }
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MagiskUiDefaults.ScreenHorizontalPadding)
+                    .padding(top = MagiskUiDefaults.ScreenTopPadding)
+            ) {
+                LogFilterSection(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    activeFilter = filter,
+                    onFilterChange = { filter = it },
+                    loading = state.loading,
+                    onRefresh = viewModel::refresh,
+                    onSave = {
+                        activity?.withPermission(WRITE_EXTERNAL_STORAGE) { granted ->
+                            if (granted) viewModel.saveMagiskLog()
+                        }
+                    },
+                    onClear = {
+                        scope.launch {
+                            val result = clearDialog.awaitConfirm(
+                                title = AppContext.getString(CoreR.string.log_clear_confirm_title),
+                                content = AppContext.getString(CoreR.string.log_clear_confirm_msg),
+                                confirm = AppContext.getString(CoreR.string.menuClearLog)
+                            )
+                            if (result == ConfirmResult.Confirmed) {
+                                viewModel.clearMagiskLogs()
                             }
                         }
-                    )
-
-                    LogFilterSection(
-                        query = searchQuery,
-                        onQueryChange = { searchQuery = it },
-                        activeFilter = filter,
-                        onFilterChange = { filter = it }
-                    )
-                }
+                    }
+                )
             }
 
-            if (state.loading && state.visibleLogs.isEmpty()) {
-                item {
-                    Box(Modifier.fillParentMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(strokeCap = StrokeCap.Round)
+            Spacer(Modifier.height(16.dp))
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = MagiskUiDefaults.ScreenHorizontalPadding,
+                    end = MagiskUiDefaults.ScreenHorizontalPadding,
+                    bottom = MagiskUiDefaults.ScreenBottomPadding
+                ),
+                verticalArrangement = Arrangement.spacedBy(MagiskUiDefaults.ListItemSpacing)
+            ) {
+                if (state.loading && state.visibleLogs.isEmpty()) {
+                    item {
+                        Box(Modifier.fillParentMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(strokeCap = StrokeCap.Round)
+                        }
                     }
-                }
-            } else if (filteredLogs.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier.fillParentMaxWidth().fillParentMaxHeight(0.5f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MagiskEmptyState(
-                            icon = Icons.Rounded.Terminal,
-                            title = stringResource(id = CoreR.string.log_data_magisk_none)
-                        )
+                } else if (filteredLogs.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillParentMaxWidth().fillParentMaxHeight(0.5f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            MagiskEmptyState(
+                                icon = Icons.Rounded.Terminal,
+                                title = stringResource(id = CoreR.string.log_data_magisk_none)
+                            )
+                        }
                     }
-                }
-            } else {
-                items(
-                    items = filteredLogs,
-                    key = { it.id },
-                    contentType = { "log_item" }
-                ) { item ->
-                    LogEventCard(item = item)
+                } else {
+                    items(
+                        items = filteredLogs,
+                        key = { it.id },
+                        contentType = { "log_item" }
+                    ) { item ->
+                        LogEventCard(item = item)
+                    }
                 }
             }
         }
@@ -155,8 +162,11 @@ fun LogsScreen(
                 .padding(bottom = MagiskUiDefaults.SnackbarBottomPaddingWithBar)
         )
 
+        val showFab = (listState.canScrollForward || listState.canScrollBackward) && filteredLogs.isNotEmpty()
+        val isAtBottom = !listState.canScrollForward
+
         AnimatedVisibility(
-            visible = listState.canScrollForward && filteredLogs.isNotEmpty(),
+            visible = showFab,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .navigationBarsPadding()
@@ -170,188 +180,21 @@ fun LogsScreen(
             FloatingActionButton(
                 onClick = {
                     scope.launch {
-                        MagiskMotion.scrollToItem(
-                            listState,
-                            filteredLogs.size
-                        )
+                        if (isAtBottom) {
+                            MagiskMotion.scrollToItem(listState, 0)
+                        } else {
+                            MagiskMotion.scrollToItem(listState, filteredLogs.size)
+                        }
                     }
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = MagiskUiDefaults.PillShape
             ) {
-                Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowDown, contentDescription = null)
-            }
-        }
-    }
-}
-
-@Immutable
-data class MagiskLogScreenUiState(
-    val loading: Boolean = true,
-    val visibleLogs: List<MagiskLogUiItem> = emptyList()
-)
-
-@Immutable
-data class LogStats(
-    val total: Int,
-    val issues: Int,
-    val sources: Int
-) {
-    companion object {
-        fun from(items: List<MagiskLogUiItem>): LogStats {
-            return LogStats(
-                total = items.size,
-                issues = items.count { it.isIssue },
-                sources = items.map { it.sourceLabel }.distinct().size
-            )
-        }
-    }
-}
-
-enum class LogDisplayFilter(@param:StringRes val labelRes: Int) {
-    ALL(CoreR.string.log_filter_all),
-    MAGISK(CoreR.string.log_filter_magisk),
-    SU(CoreR.string.log_filter_su),
-    ISSUES(CoreR.string.log_filter_issues)
-}
-
-enum class MagiskLogLevel(val code: Char, val shortLabel: String) {
-    VERBOSE('V', "V"),
-    DEBUG('D', "D"),
-    INFO('I', "I"),
-    WARN('W', "W"),
-    ERROR('E', "E"),
-    FATAL('F', "F"),
-    UNKNOWN('?', "?");
-
-    @Composable
-    fun color(): Color = when (this) {
-        WARN -> Color(0xFFF4B400)
-        ERROR, FATAL -> MaterialTheme.colorScheme.error
-        DEBUG -> MaterialTheme.colorScheme.primary
-        INFO -> MaterialTheme.colorScheme.tertiary
-        VERBOSE -> MaterialTheme.colorScheme.outline
-        UNKNOWN -> MaterialTheme.colorScheme.outline
-    }
-
-    fun icon(): ImageVector = when (this) {
-        WARN -> Icons.Rounded.Warning
-        ERROR, FATAL -> Icons.Rounded.Dangerous
-        DEBUG -> Icons.Rounded.BugReport
-        else -> Icons.Rounded.Info
-    }
-
-    companion object {
-        fun from(code: Char): MagiskLogLevel {
-            return entries.find { it.code == code } ?: UNKNOWN
-        }
-    }
-}
-
-@Immutable
-data class MagiskLogUiItem(
-    val id: Int,
-    val timestamp: String,
-    val tag: String,
-    val level: MagiskLogLevel,
-    val message: String,
-    val raw: String,
-    val pid: Int = 0,
-    val tid: Int = 0
-) {
-    val isIssue: Boolean
-        get() = level == MagiskLogLevel.WARN ||
-                level == MagiskLogLevel.ERROR ||
-                level == MagiskLogLevel.FATAL
-
-    val isMagisk: Boolean
-        get() = tag.contains("magisk", ignoreCase = true) ||
-                message.contains("magisk", ignoreCase = true)
-
-    val isSu: Boolean
-        get() = message.contains("su:", ignoreCase = true) ||
-                raw.contains("su:", ignoreCase = true) ||
-                tag.equals("su", ignoreCase = true)
-
-    val sourceLabel: String
-        get() = when {
-            isMagisk -> AppContext.getString(CoreR.string.log_source_magisk)
-            isSu -> AppContext.getString(CoreR.string.log_source_su)
-            tag.isNotBlank() -> tag
-            else -> AppContext.getString(CoreR.string.log_source_system)
-        }
-
-    fun contains(query: String): Boolean {
-        return tag.contains(query, ignoreCase = true) ||
-                message.contains(query, ignoreCase = true) ||
-                raw.contains(query, ignoreCase = true) ||
-                timestamp.contains(query, ignoreCase = true)
-    }
-}
-
-class MagiskLogViewModel(private val repo: LogRepository) : ViewModel() {
-    private val _state = MutableStateFlow(MagiskLogScreenUiState())
-    val state = _state.asStateFlow()
-
-    private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    val messages = _messages.asSharedFlow()
-
-    fun refresh() {
-        viewModelScope.launch {
-            _state.update { it.copy(loading = true) }
-            val raw = withContext(Dispatchers.IO) { repo.fetchMagiskLogs() }
-            val items = withContext(Dispatchers.Default) {
-                MagiskLogParser.parse(raw).mapIndexed { index, entry ->
-                    MagiskLogUiItem(
-                        id = index,
-                        timestamp = entry.timestamp,
-                        tag = entry.tag,
-                        level = MagiskLogLevel.from(entry.level),
-                        message = entry.message,
-                        raw = entry.message,
-                        pid = entry.pid,
-                        tid = entry.tid
-                    )
-                }
-            }
-            _state.update { it.copy(loading = false, visibleLogs = items) }
-        }
-    }
-
-    fun clearMagiskLogs() {
-        repo.clearMagiskLogs {
-            _messages.tryEmit(AppContext.getString(CoreR.string.logs_cleared))
-            refresh()
-        }
-    }
-
-    fun saveMagiskLog() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = runCatching {
-                val filename = "magisk_log_%s.log".format(
-                    System.currentTimeMillis().toTime(timeFormatStandard)
+                Icon(
+                    imageVector = if (isAtBottom) Icons.Rounded.KeyboardDoubleArrowUp else Icons.Rounded.KeyboardDoubleArrowDown,
+                    contentDescription = null
                 )
-                val logFile = MediaStoreUtils.getFile(filename)
-                val raw = repo.fetchMagiskLogs()
-                logFile.uri.outputStream().bufferedWriter().use {
-                    it.write("---Magisk Logs---\n${Info.env.versionString}\n\n$raw")
-                }
-                logFile.toString()
-            }
-            withContext(Dispatchers.Main) {
-                result
-                    .onSuccess { _messages.emit(AppContext.getString(CoreR.string.saved_to_path, it)) }
-                    .onFailure { _messages.emit(AppContext.getString(CoreR.string.failure)) }
-            }
-        }
-    }
-
-    companion object {
-        val Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return MagiskLogViewModel(ServiceLocator.logRepo) as T
             }
         }
     }
