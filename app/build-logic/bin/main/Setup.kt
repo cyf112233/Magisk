@@ -7,11 +7,11 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.apache.tools.ant.filters.FixCrLfFilter
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.Sync
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.filter
@@ -133,10 +133,16 @@ fun Project.setupCoreLib() {
                 }
                 from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM)))
                 include(abiList.map { "$it/libbusybox.so" })
-                onlyIf {
-                    if (inputs.sourceFiles.files.size != abiList.size * 6)
-                        throw StopExecutionException("Please build binaries first! (./build.py binary)")
-                    true
+                doFirst {
+                    val expectedInputs = abiList.size * 6
+                    val actualInputs = inputs.sourceFiles.files.size
+                    if (actualInputs != expectedInputs) {
+                        throw GradleException(
+                            "Please build native binaries first! " +
+                                    "Expected $expectedInputs JNI inputs, found $actualInputs. " +
+                                    "(./build.py native)"
+                        )
+                    }
                 }
             }
             variant.sources.jniLibs
@@ -239,7 +245,7 @@ fun Project.setupAppCommon() {
 
         packaging {
             jniLibs {
-                useLegacyPackaging = true
+                useLegacyPackaging = false
             }
         }
     }

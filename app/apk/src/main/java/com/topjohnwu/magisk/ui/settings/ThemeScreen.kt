@@ -39,6 +39,7 @@ fun ThemeScreen(
 ) {
     var currentTheme by remember { mutableStateOf(Theme.selected) }
     var currentDarkMode by remember { mutableIntStateOf(Config.darkTheme) }
+    var currentBottomBarStyle by remember { mutableIntStateOf(Config.bottomBarStyle) }
     var customColors by remember { mutableStateOf(CustomThemeColors.fromConfig()) }
     var customDraftColors by remember { mutableStateOf(customColors) }
     var showCustomEditorSheet by remember { mutableStateOf(false) }
@@ -79,6 +80,18 @@ fun ThemeScreen(
                         ) {
                             onThemeChanged()
                         }
+                    }
+                )
+            }
+
+            item(span = { GridItemSpan(2) }) {
+                BottomBarStyleExpressiveSection(
+                    currentStyle = currentBottomBarStyle,
+                    onStyleSelected = { style ->
+                        if (currentBottomBarStyle == style) return@BottomBarStyleExpressiveSection
+                        currentBottomBarStyle = style
+                        Config.bottomBarStyle = style
+                        onThemeChanged()
                     }
                 )
             }
@@ -299,6 +312,7 @@ private fun DarkModeExpressiveSection(
                             MagiskDialogOption(
                                 title = option.label,
                                 subtitle = option.subtitle,
+                                icon = option.icon,
                                 selected = isSelected,
                                 showRadio = true,
                                 onClick = {
@@ -825,3 +839,126 @@ private fun AnimeThemeWatermark(theme: Theme, modifier: Modifier = Modifier) {
         )
     }
 }
+
+@Composable
+private fun BottomBarStyleExpressiveSection(
+    currentStyle: Int,
+    onStyleSelected: (Int) -> Unit
+) {
+    var showStyleMenu by remember { mutableStateOf(false) }
+    val options = listOf(
+        BottomBarMenuOption(
+            style = 0,
+            icon = Icons.Rounded.Settings,
+            label = stringResource(id = CoreR.string.bottom_bar_style_auto),
+            subtitle = stringResource(id = CoreR.string.bottom_bar_style_auto_subtitle)
+        ),
+        BottomBarMenuOption(
+            style = 1,
+            icon = Icons.Rounded.Layers,
+            label = stringResource(id = CoreR.string.bottom_bar_style_floating),
+            subtitle = stringResource(id = CoreR.string.bottom_bar_style_floating_subtitle)
+        ),
+        BottomBarMenuOption(
+            style = 2,
+            icon = Icons.Rounded.CallToAction,
+            label = stringResource(id = CoreR.string.bottom_bar_style_fixed),
+            subtitle = stringResource(id = CoreR.string.bottom_bar_style_fixed_subtitle)
+        )
+    )
+    val selected = options.firstOrNull { it.style == currentStyle } ?: options.first()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(id = CoreR.string.bottom_bar_style_title).uppercase(),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.2.sp,
+            color = MaterialTheme.colorScheme.outline,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        Surface(
+            onClick = { showStyleMenu = true },
+            shape = MagiskUiDefaults.ExtraLargeShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    modifier = Modifier.size(MagiskUiDefaults.IconContainerSize)
+                ) {
+                    Icon(
+                        imageVector = selected.icon,
+                        contentDescription = null,
+                        modifier = Modifier.padding(12.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = selected.label,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = selected.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+
+        if (showStyleMenu) {
+            MagiskDialog(
+                onDismissRequest = { showStyleMenu = false },
+                title = stringResource(id = CoreR.string.bottom_bar_style_title),
+                icon = Icons.Rounded.Settings,
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        options.forEach { option ->
+                            val isSelected = option.style == currentStyle
+                            MagiskDialogOption(
+                                title = option.label,
+                                subtitle = option.subtitle,
+                                icon = option.icon,
+                                selected = isSelected,
+                                showRadio = true,
+                                onClick = {
+                                    showStyleMenu = false
+                                    onStyleSelected(option.style)
+                                }
+                            )
+                        }
+                    }
+                },
+                confirmButton = {}
+            )
+        }
+    }
+}
+
+private data class BottomBarMenuOption(
+    val style: Int,
+    val icon: ImageVector,
+    val label: String,
+    val subtitle: String
+)

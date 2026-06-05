@@ -82,7 +82,7 @@ fun MagiskListCard(
     collapsedElevation: Dp = MagiskUiDefaults.CardElevation,
     expandedScale: Float = 1f,
     collapsedScale: Float = 1f,
-    showWatermark: Boolean = true,
+    showWatermark: Boolean = false,
     backgroundContent: @Composable BoxScope.() -> Unit = {},
     content: @Composable ColumnScope.(ExpandableCardMotion) -> Unit
 ) {
@@ -95,47 +95,58 @@ fun MagiskListCard(
         collapsedScale = collapsedScale
     )
 
-    Box(
+    val solidColor = backgroundColor.copy(alpha = 1f)
+
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .animateContentSize(animationSpec = MagiskMotion.cardContentSpring())
             .scale(motion.scale)
-            .shadow(motion.elevation, shape = shape, clip = false)
-            .clip(shape)
-            .then(
-                if (backgroundBrush != null) {
-                    Modifier.background(backgroundBrush)
-                } else {
-                    Modifier.background(backgroundColor)
-                }
-            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
-            )
+            ),
+        shape = shape,
+        color = solidColor,
+        shadowElevation = motion.elevation
     ) {
-        if (showWatermark) {
-            Icon(
-                painter = painterResource(id = CoreR.drawable.ic_magisk_outline),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(140.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 40.dp, y = (-30).dp)
-                    .alpha(0.04f),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        backgroundContent()
-
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(contentPadding)
+                .animateContentSize(animationSpec = MagiskMotion.cardContentSpring())
+                .clip(shape)
+                .run {
+                    if (backgroundBrush != null) {
+                        background(backgroundBrush)
+                    } else if (backgroundColor.alpha < 1f) {
+                        background(backgroundColor)
+                    } else {
+                        this
+                    }
+                }
         ) {
-            content(motion)
+            if (showWatermark) {
+                Icon(
+                    painter = painterResource(id = CoreR.drawable.ic_magisk_outline),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(140.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(x = 40.dp, y = (-30).dp)
+                        .alpha(0.04f),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            backgroundContent()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(contentPadding)
+            ) {
+                content(motion)
+            }
         }
     }
 }

@@ -164,11 +164,7 @@ internal fun DenyListCard(
             )
         }
 
-        AnimatedVisibility(
-            visible = item.expanded,
-            enter = MagiskMotion.expandablePanelEnter(),
-            exit = MagiskMotion.expandablePanelExit()
-        ) {
+        if (item.expanded) {
             Column {
                 Spacer(Modifier.height(24.dp))
                 item.processes.forEach { process ->

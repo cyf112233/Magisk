@@ -369,4 +369,12 @@
     <string name="settings_header_subtitle">Configure environment and application</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="settings_search" />
+    <!-- Bottom Bar Style Customization -->
+    <string name="bottom_bar_style_title">Bottom Bar Style</string>
+    <string name="bottom_bar_style_auto">Automatic</string>
+    <string name="bottom_bar_style_auto_subtitle">Choose based on device navigation keys</string>
+    <string name="bottom_bar_style_floating">Always Floating</string>
+    <string name="bottom_bar_style_floating_subtitle">Keep the bottom bar floating above the screen</string>
+    <string name="bottom_bar_style_fixed">Always Pinned</string>
+    <string name="bottom_bar_style_fixed_subtitle">Lock the bottom bar to the bottom edge</string>
 </resources>

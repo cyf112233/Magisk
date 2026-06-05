@@ -5,6 +5,7 @@ import com.android.ide.common.signing.KeystoreHelper
 import com.android.tools.build.apkzlib.sign.SigningExtension
 import com.android.tools.build.apkzlib.sign.SigningOptions
 import com.android.tools.build.apkzlib.zfile.ZFiles
+import com.android.tools.build.apkzlib.zip.AlignmentRules
 import com.android.tools.build.apkzlib.zip.ZFile
 import com.android.tools.build.apkzlib.zip.ZFileOptions
 import org.gradle.api.DefaultTask
@@ -18,6 +19,9 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.util.jar.JarFile
+
+private const val ZIP_ALIGNMENT = 4
+private const val NATIVE_LIBRARY_ZIP_ALIGNMENT = 16 * 1024
 
 abstract class TransformApkTask : DefaultTask() {
     @get:Input
@@ -60,6 +64,10 @@ abstract class TransformApkTask : DefaultTask() {
         val options = ZFileOptions().apply {
             noTimestamps = true
             autoSortFiles = true
+            alignmentRule = AlignmentRules.compose(
+                AlignmentRules.constantForSuffix(".so", NATIVE_LIBRARY_ZIP_ALIGNMENT),
+                AlignmentRules.constant(ZIP_ALIGNMENT)
+            )
         }
         outFile.parentFile?.mkdirs()
         inFile.copyTo(outFile, overwrite = true)

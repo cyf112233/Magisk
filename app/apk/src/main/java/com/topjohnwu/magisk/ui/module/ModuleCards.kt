@@ -231,12 +231,7 @@ internal fun ModuleCard(
             )
         }
 
-        AnimatedVisibility(
-            visible = module.expanded,
-            enter = MagiskMotion.expandablePanelEnter(),
-            exit = MagiskMotion.expandablePanelExit(),
-            label = "moduleCardDetails"
-        ) {
+        if (module.expanded) {
             Column {
                 if (module.description.isNotBlank()) {
                     Spacer(Modifier.height(20.dp))
@@ -293,11 +288,7 @@ internal fun ModuleCard(
                         FilledTonalIconButton(
                             onClick = onAction,
                             modifier = Modifier
-                                .size(52.dp)
-                                .animateEnterExit(
-                                    enter = MagiskMotion.staggeredTrailingActionEnter(1),
-                                    exit = MagiskMotion.trailingActionExit()
-                                ),
+                                .size(52.dp),
                             shape = CircleShape
                         ) {
                             Icon(
@@ -315,10 +306,6 @@ internal fun ModuleCard(
                             shape = MagiskUiDefaults.PillShape,
                             modifier = Modifier
                                 .height(52.dp)
-                                .animateEnterExit(
-                                    enter = MagiskMotion.staggeredTrailingActionEnter(2),
-                                    exit = MagiskMotion.trailingActionExit()
-                                )
                         ) {
                             Icon(
                                 Icons.Rounded.SystemUpdateAlt,
@@ -338,11 +325,7 @@ internal fun ModuleCard(
                         enabled = !module.updated,
                         modifier = Modifier
                             .size(52.dp)
-                            .alpha(if (module.updated) 0.45f else 1f)
-                            .animateEnterExit(
-                                enter = MagiskMotion.staggeredTrailingActionEnter(3),
-                                exit = MagiskMotion.trailingActionExit()
-                            ),
+                            .alpha(if (module.updated) 0.45f else 1f),
                         shape = CircleShape,
                         color = when {
                             module.updated -> MaterialTheme.colorScheme.surfaceVariant

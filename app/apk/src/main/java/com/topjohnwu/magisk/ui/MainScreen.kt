@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Const
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.ui.animation.MagiskMotion
@@ -160,7 +164,10 @@ fun MagiskAppContainer(
                 )
             },
             snackbarHost = {
-                MagiskSnackbarHost(hostState = snackbarHostState)
+                MagiskSnackbarHost(
+                    hostState = snackbarHostState,
+                    hasBottomBar = isRootRoute
+                )
             }
         ) { paddingValues ->
             Box(
@@ -284,21 +291,36 @@ fun MagiskAppContainer(
                 }
 
                 /* Floating Bottom Navigation Bar */
+                val navigationBarsHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                val isFixedBottomBar = when (Config.bottomBarStyle) {
+                    1 -> false // Always floating
+                    2 -> true  // Always fixed/pinned
+                    else -> navigationBarsHeight > 24.dp // Automatic (Default)
+                }
+
                 AnimatedVisibility(
                     visible = isRootRoute,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(
-                            horizontal = MagiskUiDefaults.ListItemSpacing,
-                            vertical = MagiskUiDefaults.ListItemSpacing + 4.dp
-                        )
-                        .navigationBarsPadding(),
+                        .then(
+                            if (isFixedBottomBar) {
+                                Modifier
+                            } else {
+                                Modifier
+                                    .padding(
+                                        horizontal = MagiskUiDefaults.ListItemSpacing,
+                                        vertical = MagiskUiDefaults.ListItemSpacing + 4.dp
+                                    )
+                                    .navigationBarsPadding()
+                            }
+                        ),
                     enter = MagiskMotion.floatingBarEnter(),
                     exit = MagiskMotion.floatingBarExit()
                 ) {
                     MagiskFloatingBottomBar(
                         destinations = rootDestinations,
                         currentRoute = currentRoute,
+                        isButtonNavigation = isFixedBottomBar,
                         onNavigate = { route ->
                             navController.navigate(route) {
                                 popUpTo(navController.graph.findStartDestination().id) {

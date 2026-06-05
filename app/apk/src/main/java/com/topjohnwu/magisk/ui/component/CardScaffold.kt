@@ -99,6 +99,7 @@ fun MagiskExpandableCard(
 @Composable
 fun PremiumCard(
     modifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
     shape: Shape = MagiskUiDefaults.ExtraLargeShape,
     border: BorderStroke? = null,
     backgroundBrush: Brush? = null,
@@ -109,11 +110,12 @@ fun PremiumCard(
     content: @Composable BoxScope.() -> Unit
 ) {
     val cardModifier = if (border != null) modifier.border(border, shape) else modifier
+    val solidContainerColor = backgroundColor.copy(alpha = 1f)
 
     MagiskCard(
         modifier = cardModifier,
         shape = shape,
-        containerColor = if (backgroundBrush != null) Color.Transparent else backgroundColor,
+        containerColor = solidContainerColor,
         contentColor = contentColor,
         elevation = elevation,
         onClick = onClick
@@ -122,9 +124,12 @@ fun PremiumCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(shape)
+                .then(contentModifier)
                 .run {
                     if (backgroundBrush != null) {
                         background(backgroundBrush)
+                    } else if (backgroundColor.alpha < 1f) {
+                        background(backgroundColor)
                     } else {
                         this
                     }
@@ -158,14 +163,14 @@ fun PremiumExpandableCard(
         collapsedScale = collapsedScale
     )
     val cardModifier = if (border != null) modifier.border(border, shape) else modifier
+    val solidContainerColor = backgroundColor.copy(alpha = 1f)
 
     MagiskCard(
         modifier = cardModifier
             .fillMaxWidth()
-            .animateContentSize(animationSpec = MagiskMotion.cardContentSpring())
             .scale(motion.scale),
         shape = shape,
-        containerColor = if (backgroundBrush != null) Color.Transparent else backgroundColor,
+        containerColor = solidContainerColor,
         contentColor = contentColor,
         elevation = motion.elevation,
         onClick = onClick
@@ -173,10 +178,13 @@ fun PremiumExpandableCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .animateContentSize(animationSpec = MagiskMotion.cardContentSpring())
                 .clip(shape)
                 .run {
                     if (backgroundBrush != null) {
                         background(backgroundBrush)
+                    } else if (backgroundColor.alpha < 1f) {
+                        background(backgroundColor)
                     } else {
                         this
                     }

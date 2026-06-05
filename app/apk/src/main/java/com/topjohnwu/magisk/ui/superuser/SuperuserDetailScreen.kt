@@ -192,7 +192,6 @@ fun SuperuserLogsScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = MagiskUiDefaults.SnackbarBottomPaddingWithBar)
         )
     }
 }
@@ -297,16 +296,6 @@ private fun TimelineLogItem(index: Int, total: Int, item: SuLogUiItem) {
                 .weight(1f)
         ) {
             Box {
-                Icon(
-                    painter = painterResource(id = CoreR.drawable.ic_magisk_outline),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = 20.dp, y = (-15).dp)
-                        .alpha(0.04f),
-                    tint = MaterialTheme.colorScheme.primary
-                )
                 Column(modifier = Modifier.padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val appIconPainter =

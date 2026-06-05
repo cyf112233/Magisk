@@ -26,14 +26,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.topjohnwu.magisk.core.R as CoreR
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+
 @Composable
 fun MagiskSnackbarHost(
     hostState: SnackbarHostState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hasBottomBar: Boolean = false
 ) {
+    val navigationBarsHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val bottomPadding = if (hasBottomBar) {
+        104.dp + navigationBarsHeight
+    } else {
+        16.dp + navigationBarsHeight
+    }
+
     SnackbarHost(
         hostState = hostState,
-        modifier = modifier,
+        modifier = modifier
+            .padding(bottom = bottomPadding),
         snackbar = { data -> MagiskSnackbar(data = data) }
     )
 }

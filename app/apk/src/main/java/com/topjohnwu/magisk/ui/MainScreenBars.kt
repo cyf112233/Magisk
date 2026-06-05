@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -219,13 +223,26 @@ internal fun MagiskTopBar(
 internal fun MagiskFloatingBottomBar(
     destinations: List<AppDestination>,
     currentRoute: String,
+    isButtonNavigation: Boolean = false,
     onNavigate: (String) -> Unit
 ) {
+    val navigationBarsHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val barHeight = if (isButtonNavigation) {
+        MagiskUiDefaults.BottomBarHeight + navigationBarsHeight
+    } else {
+        MagiskUiDefaults.BottomBarHeight
+    }
+    val barShape = if (isButtonNavigation) {
+        RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    } else {
+        MagiskUiDefaults.PillShape
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(MagiskUiDefaults.BottomBarHeight),
-        shape = MagiskUiDefaults.PillShape,
+            .height(barHeight),
+        shape = barShape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.96f),
         tonalElevation = MagiskUiDefaults.FloatingBarTonalElevation,
         shadowElevation = MagiskUiDefaults.FloatingBarShadowElevation,
@@ -234,7 +251,18 @@ internal fun MagiskFloatingBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .then(
+                    if (isButtonNavigation) {
+                        Modifier.padding(
+                            start = 12.dp,
+                            end = 12.dp,
+                            top = 8.dp,
+                            bottom = 8.dp + navigationBarsHeight
+                        )
+                    } else {
+                        Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

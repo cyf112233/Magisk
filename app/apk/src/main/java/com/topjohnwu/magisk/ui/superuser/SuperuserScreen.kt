@@ -174,8 +174,8 @@ fun SuperuserScreen(
         MagiskSnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = MagiskUiDefaults.SnackbarBottomPadding)
+                .align(Alignment.BottomCenter),
+            hasBottomBar = true
         )
     }
 
@@ -456,11 +456,7 @@ private fun StylishMagiskPolicyCard(
             )
         }
 
-        AnimatedVisibility(
-            visible = item.expanded,
-            enter = MagiskMotion.expandablePanelEnter(),
-            exit = MagiskMotion.expandablePanelExit()
-        ) {
+        if (item.expanded) {
             Column {
                 Spacer(Modifier.height(24.dp))
                 Row(

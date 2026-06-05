@@ -325,8 +325,8 @@ fun ModuleScreen(
         MagiskSnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = MagiskUiDefaults.SnackbarBottomPaddingWithBar)
+                .align(Alignment.BottomCenter),
+            hasBottomBar = true
         )
     }
 }

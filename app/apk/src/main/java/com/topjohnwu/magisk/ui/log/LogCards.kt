@@ -120,9 +120,8 @@ internal fun LogEventCard(item: MagiskLogUiItem) {
     val clipboardManager = LocalClipboardManager.current
 
     PremiumCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(MagiskMotion.cardContentSpring()),
+        modifier = Modifier.fillMaxWidth(),
+        contentModifier = Modifier.animateContentSize(MagiskMotion.cardContentSpring()),
         shape = MagiskUiDefaults.ExtraLargeShape,
         backgroundColor = if (item.isIssue) {
             MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.08f)

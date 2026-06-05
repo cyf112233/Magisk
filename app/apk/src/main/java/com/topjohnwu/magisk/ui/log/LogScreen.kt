@@ -158,8 +158,8 @@ fun LogsScreen(
         MagiskSnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = MagiskUiDefaults.SnackbarBottomPaddingWithBar)
+                .align(Alignment.BottomCenter),
+            hasBottomBar = true
         )
 
         val showFab = (listState.canScrollForward || listState.canScrollBackward) && filteredLogs.isNotEmpty()

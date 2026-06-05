@@ -191,7 +191,6 @@ fun DenyListScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = MagiskUiDefaults.SnackbarBottomPadding)
         )
     }
 }

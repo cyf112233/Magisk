@@ -230,9 +230,8 @@ fun HomeScreen(
 
         MagiskSnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = MagiskUiDefaults.SnackbarBottomPaddingWithBar)
+            modifier = Modifier.align(Alignment.BottomCenter),
+            hasBottomBar = true
         )
     }
 

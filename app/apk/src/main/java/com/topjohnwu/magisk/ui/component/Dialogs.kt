@@ -212,9 +212,9 @@ fun MagiskDialogOption(
 ) {
     val containerColor by MagiskMotion.animateColor(
         targetValue = if (selected) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.24f)
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
         } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f)
+            MaterialTheme.colorScheme.surfaceContainerHighest
         },
         animationSpec = MagiskMotion.quickColorSpec(),
         label = "dialogOptionContainer"
@@ -227,38 +227,31 @@ fun MagiskDialogOption(
         color = containerColor
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            when {
-                showRadio -> {
-                    RadioButton(selected = selected, onClick = null)
-                    Spacer(Modifier.width(16.dp))
-                }
-
-                icon != null -> {
-                    Surface(
-                        color = accentColor.copy(alpha = 0.12f),
-                        shape = CircleShape,
-                        modifier = Modifier.size(44.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(22.dp),
-                                tint = accentColor
-                            )
-                        }
+            if (icon != null) {
+                Surface(
+                    color = accentColor.copy(alpha = 0.12f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(42.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = accentColor
+                        )
                     }
-                    Spacer(Modifier.width(16.dp))
                 }
+                Spacer(Modifier.width(16.dp))
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                    fontWeight = if (selected) FontWeight.Black else FontWeight.Bold
                 )
                 if (subtitle != null) {
                     Text(
@@ -267,6 +260,10 @@ fun MagiskDialogOption(
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                     )
                 }
+            }
+            if (showRadio) {
+                Spacer(Modifier.width(12.dp))
+                RadioButton(selected = selected, onClick = null)
             }
         }
     }
