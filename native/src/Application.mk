@@ -5,7 +5,6 @@ APP_STL          := none
 APP_PLATFORM     := android-23
 APP_THIN_ARCHIVE := true
 APP_STRIP_MODE   := none
-APP_LDFLAGS      += -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384
 
 ifdef MAGISK_DEBUG
 
